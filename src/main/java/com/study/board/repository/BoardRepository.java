@@ -6,4 +6,5 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ResponseBody
 public interface BoardRepository extends JpaRepository<Board, Integer> {
+
 }

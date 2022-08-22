@@ -2,17 +2,20 @@ package com.study.board.controller;
 
 import com.study.board.entity.Board;
 import com.study.board.service.BoardService;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable; // 페이지블 임포트 이거임!!!
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.print.Pageable;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
 
 
 @Controller
@@ -38,16 +41,36 @@ public class BoardController {
         return "message";
         // 사실 오류처리를 해줄 필요도 있음. 실패할시, 글 작성에 실패했다, 그런 거.
     }
+    // 파일 업로드 : 원래 multipartHttpServletRequest => multipartFile 인터페이를 활용
+    // create의 연결 로직 정리하고 read로 넘어아기
 
     @GetMapping("/board/list")
     public String boardList(Model model, @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
-        // 모델이라는 클래스가 뭔지?
-        model.addAttribute("list", boardService.boardList(pageable));
+        // 모델이라는 클래스가 뭔지? https://velog.io/@msriver/Spring-Model-%EA%B0%9D%EC%B2%B4
+        // https://dev-coco.tistory.com/100
+//        https://cupdisin.tistory.com/19
+        //model.addAttribute("list", boardService.boardList());
         // 리스트라는 이름으로 모델을 서비스에 넘긴다 서비스보드리스트로
+
+        Page<Board> list = boardService.boardList(pageable);
+
+        int nowPage = list.getPageable().getPageNumber() + 1;
+        int startPage = Math.max(nowPage - 4, 1);
+        int endPage = Math.min(nowPage + 5, list.getTotalPages());
+
+        model.addAttribute("list", list);
+        model.addAttribute("nowPage", nowPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
 
         return "boardList";
     }
+
+//    즉 boardService.어쩌고를 통해서 보드서비스에 저장하거나, 데이터를 가져옴
+//    모델은 데이터를 뷰와 이케 하는거 어트리뷰트(-란이름으로, -를 넘겨준다)
+    // notion pageable 참고
+
     @GetMapping("/board/view")
     public String boardView(Model model, Integer id){
         // 겟매핑 방식으로 view?id=1 이렇게 입력하면 1번 게시글을 볼 수 있음
@@ -79,4 +102,12 @@ public class BoardController {
         boardService.write(boardTemp, file);
         return "redirect:/board/list";
     }
+    @GetMapping("board/list")
+    public String boardList() {
+        return "boardList";
+    }
+
+
+    // 연습용
+
 }

@@ -25,7 +25,9 @@
         <form action="/board/writedo" method="post" enctype="multipart/form-data">
         <input name="title" type="text">
         <textarea name="content"></textarea>
-            <input type="file" name="file">
+            <input type="file" name="file"> 타입을 파일로 명시해야 멀티파트파일이 인식가능함
+            여러개의 파일을 선택하기 위해선 <input type="file" name="arr[]" multiple>
+            멀티풀 옵션을 주고, 배열 형식으로 이름을 줘야 함.
         <button type="submit">작성</button>
         </form>
     </div>
